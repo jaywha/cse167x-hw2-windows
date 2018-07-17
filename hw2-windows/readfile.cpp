@@ -106,15 +106,15 @@ void readfile(const char* filename)
 							// Make use of lightposn[] and lightcolor[] arrays in variables.h
 							// Those arrays can then be used in display too.
 
-							lightposn[numused] = values[0]; // x
-							lightposn[numused + 1] = values[1]; // y
-							lightposn[numused + 2] = values[2]; // z
-							lightposn[numused + 3] = values[3]; // w (homogenous)
+							lightposn[numused*4] = values[0]; // x
+							lightposn[numused*4 + 1] = values[1]; // y
+							lightposn[numused*4 + 2] = values[2]; // z
+							lightposn[numused*4 + 3] = values[3]; // w (homogenous)
 
-							lightcolor[numused] = values[4]; // r
-							lightcolor[numused + 1] = values[5]; // g
-							lightcolor[numused + 2] = values[6]; // b
-							lightcolor[numused + 3] = 1.0; // a
+							lightcolor[numused*4] = values[4]; // r
+							lightcolor[numused*4 + 1] = values[5]; // g
+							lightcolor[numused*4 + 2] = values[6]; // b
+							lightcolor[numused*4 + 3] = values[7]; // a
 
 							++numused;
 						}
@@ -180,17 +180,9 @@ void readfile(const char* filename)
 						// You may need to use the upvector fn in Transform.cpp
 						// to set up correctly. 
 						// Set eyeinit upinit center fovy in variables.h 
-						eyeinit.x = values[0]; // lookfromx
-						eyeinit.y = values[1]; // lookfromy
-						eyeinit.z = values[2]; // lookfromz
-
-						center.x = values[3]; // lookatx
-						center.y = values[4]; // lookaty
-						center.z = values[5]; // lookatz
-
-						upinit.x = values[6]; // upx
-						upinit.y = values[7]; // upy
-						upinit.z = values[8]; // upz
+						eyeinit = vec3(values[0], values[1], values[2]); // looking from point
+						center = vec3(values[4], values[5], values[6]); // center init
+						upinit = Transform::upvector(vec3(values[6], values[7], values[8]), eyeinit); // up vector init
 
 						fovy = values[9];
 					}
@@ -269,12 +261,7 @@ void readfile(const char* filename)
 						// Note that rotate returns a mat3. 
 						// Also keep in mind what order your matrix is!
 						vec3 axis_vec = vec3(values[0], values[1], values[2]);
-						glm::normalize(axis_vec);
-						mat3 rm = Transform::rotate(values[3], axis_vec);
-						mat4 rotateOp = mat4(rm[0][0], rm[1][0], rm[2][0], 0.0,
-											rm[0][1], rm[1][1], rm[2][1], 0.0,
-											rm[0][2], rm[1][2], rm[2][2], 0.0,
-											0.0, 0.0, 0.0, 0.0);
+						mat4 rotateOp = mat4(Transform::rotate(values[3], axis_vec));
 						rightmultiply(rotateOp, transfstack);
 					
 					}
